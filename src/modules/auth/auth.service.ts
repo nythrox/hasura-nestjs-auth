@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, HttpException, HttpStatus } from '@n
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserModel } from '../users/user.model';
+import { JwtPayload, HasuraAllowedRoles } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -16,19 +17,20 @@ export class AuthService {
   }
 
   async getNewAccessToken(user : UserModel) {
-    const payload : JwtPayloadDto = { 
+    const payload : JwtPayload = { 
       sub: user.id, 
       username: user.username, 
-      "claims": {
-        "x-hasura-allowed-roles": ["user","admin"],
+      "x-hasura-claims": {
+        "x-hasura-allowed-roles": ['admin', 'user'],
         "x-hasura-default-role": "user",
         "x-hasura-user-id": user.id,
         "x-hasura-role": user.role
       }
     };
+    const token = this.jwtService.sign(payload)
     return {
-      payload: payload,
-      access_token: this.jwtService.sign(payload),
+      token: this.jwtService.verify(token),
+      access_token: token,
     };
   }
 
@@ -36,7 +38,7 @@ export class AuthService {
   async login(email: string, password: string){
     const user : UserModel = await this.validateUser(email, password);
     if (!user)
-    throw new HttpException('Invalid username or password',HttpStatus.NOT_FOUND)
+    throw new HttpException('Invalid username or password',HttpStatus.UNAUTHORIZED)
     return this.getNewAccessToken(user);
   }
 

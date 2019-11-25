@@ -1,13 +1,10 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '../config/config.service';
 import { ConfigModule } from '../config/config.module';
-import { APP_PIPE } from '@nestjs/core';
 
 const jwtConfigsFactory = {
     imports: [ConfigModule],
@@ -23,11 +20,10 @@ const jwtConfigsFactory = {
 @Module({
     imports: [
         UsersModule,
-        // PassportModule.register({ defaultStrategy: 'jwt' }),
         JwtModule.registerAsync(jwtConfigsFactory)
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy]
+    providers: [AuthService]
 })
 
 export class AuthModule {

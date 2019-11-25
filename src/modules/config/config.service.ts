@@ -13,10 +13,4 @@ export class ConfigService {
   get(key: string): string {
     return this.envConfig[key];
   }
-  get jwtSecret(): string {
-    return this.envConfig.JWT_SECRET;
-  }
-  get port() : number {
-      return Number(this.envConfig.PORT)
-  }
 }
